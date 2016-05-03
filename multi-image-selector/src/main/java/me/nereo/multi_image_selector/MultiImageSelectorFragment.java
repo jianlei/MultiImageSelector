@@ -30,7 +30,8 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,6 +43,8 @@ import me.nereo.multi_image_selector.bean.Folder;
 import me.nereo.multi_image_selector.bean.Image;
 import me.nereo.multi_image_selector.utils.FileUtils;
 import me.nereo.multi_image_selector.utils.TimeUtils;
+
+//import com.squareup.picasso.Picasso;
 
 /**
  * 图片选择Fragment
@@ -183,15 +186,19 @@ public class MultiImageSelectorFragment extends Fragment {
         });
 
         mGridView = (GridView) view.findViewById(R.id.grid);
+
         mGridView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView absListView, int state) {
 
-                final Picasso picasso = Picasso.with(getActivity());
+                final RequestManager requestManager = Glide.with(getActivity());
+//                final Picasso picasso = Picasso.with(getActivity());
                 if(state == SCROLL_STATE_IDLE || state == SCROLL_STATE_TOUCH_SCROLL){
-                    picasso.resumeTag(getActivity());
+//                    picasso.resumeTag(getActivity());
+                    requestManager.resumeRequests();
                 }else{
-                    picasso.pauseTag(getActivity());
+                    requestManager.pauseRequests();
+//                    picasso.pauseTag(getActivity());
                 }
 
                 if(state == SCROLL_STATE_IDLE){
@@ -225,11 +232,11 @@ public class MultiImageSelectorFragment extends Fragment {
                 mGridHeight = height;
 
                 final int desireSize = getResources().getDimensionPixelOffset(R.dimen.image_size);
-                final int numCount = width / desireSize;
+                final int numCount = 3;//width / desireSize;
                 final int columnSpace = getResources().getDimensionPixelOffset(R.dimen.space_size);
                 int columnWidth = (width - columnSpace*(numCount-1)) / numCount;
                 mImageAdapter.setItemSize(columnWidth);
-
+                mGridView.setNumColumns(numCount);
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
                     mGridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 }else{
