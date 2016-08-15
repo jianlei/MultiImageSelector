@@ -22,6 +22,7 @@ import me.nereo.multi_image_selector.bean.Folder;
 /**
  * 文件夹Adapter
  * Created by Nereo on 2015/4/7.
+ * Updated by nereo on 2016/1/19.
  */
 public class FolderAdapter extends BaseAdapter {
 
@@ -37,7 +38,7 @@ public class FolderAdapter extends BaseAdapter {
     public FolderAdapter(Context context){
         mContext = context;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mImageSize = mContext.getResources().getDimensionPixelOffset(R.dimen.folder_cover_size);
+        mImageSize = mContext.getResources().getDimensionPixelOffset(R.dimen.mis_folder_cover_size);
     }
 
     /**
@@ -73,20 +74,22 @@ public class FolderAdapter extends BaseAdapter {
     public View getView(int i, View view, ViewGroup viewGroup) {
         ViewHolder holder;
         if(view == null){
-            view = mInflater.inflate(R.layout.list_item_folder, viewGroup, false);
+            view = mInflater.inflate(R.layout.mis_list_item_folder, viewGroup, false);
             holder = new ViewHolder(view);
         }else{
             holder = (ViewHolder) view.getTag();
         }
         if (holder != null) {
             if(i == 0){
-                holder.name.setText("所有图片");
-                holder.size.setText(getTotalImageSize()+"张");
+                holder.name.setText(R.string.mis_folder_all);
+                holder.path.setText("/sdcard");
+                holder.size.setText(String.format("%d%s",
+                        getTotalImageSize(), mContext.getResources().getString(R.string.mis_photo_unit)));
                 if(mFolders.size()>0){
                     Folder f = mFolders.get(0);
                     Glide.with(mContext)
                             .load(new File(f.cover.path))
-                            .error(R.drawable.default_error)
+                            .error(R.drawable.mis_default_error)
                             .override(mImageSize, mImageSize)
                             .centerCrop()
                             .into(holder.cover);
@@ -127,27 +130,48 @@ public class FolderAdapter extends BaseAdapter {
     class ViewHolder{
         ImageView cover;
         TextView name;
+        TextView path;
         TextView size;
         ImageView indicator;
         ViewHolder(View view){
             cover = (ImageView)view.findViewById(R.id.cover);
             name = (TextView) view.findViewById(R.id.name);
+            path = (TextView) view.findViewById(R.id.path);
             size = (TextView) view.findViewById(R.id.size);
             indicator = (ImageView) view.findViewById(R.id.indicator);
             view.setTag(this);
         }
 
         void bindData(Folder data) {
+            if(data == null){
+                return;
+            }
             name.setText(data.name);
-            size.setText(data.images.size()+"张");
-            // 显示图片
-            Glide.with(mContext)
+            path.setText(data.path);
+            if (data.images != null) {
+                size.setText(String.format("%d%s", data.images.size(), mContext.getResources().getString(R.string.mis_photo_unit)));
+            }else{
+                size.setText("*"+mContext.getResources().getString(R.string.mis_photo_unit));
+            }
+            if (data.cover != null) {
+                // 显示图片
+                /** Picasso.with(mContext)
+                        .load(new File(data.cover.path))
+                        .placeholder(R.drawable.mis_default_error)
+                        .resizeDimen(R.dimen.mis_folder_cover_size, R.dimen.mis_folder_cover_size)
+                        .centerCrop()
+                        .into(cover);*/
+
+
+		 Glide.with(mContext)
                     .load(new File(data.cover.path))
-                    .placeholder(R.drawable.default_error)
+                    .placeholder(R.drawable.mis_default_error)
                     .override(mImageSize, mImageSize)
                     .centerCrop()
                     .into(cover);
-            // TODO 选择标识
+            }else{
+                cover.setImageResource(R.drawable.mis_default_error);
+            }
         }
     }
 

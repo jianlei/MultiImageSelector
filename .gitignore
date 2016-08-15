@@ -30,3 +30,5 @@ proguard/
 
 # Log Files
 *.log
+/multi-image-selector/multi-image-selector.iml
+*.iml
